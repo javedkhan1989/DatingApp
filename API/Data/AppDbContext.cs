@@ -9,4 +9,6 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
     {
         get; set;
     }
+    public DbSet<Member> Members { get; set; }
+    public DbSet<Photo> Photos { get; set; }
 }

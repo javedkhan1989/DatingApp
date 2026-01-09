@@ -1,52 +1,30 @@
-using API.Data;
 using API.Entities;
+using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 namespace API.Controllers
 {
-
-    public class MembersController(AppDbContext context) : BaseApiController
+    [Authorize]
+    public class MembersController(IMemberRepository memberRepository) : BaseApiController
     {
         // GET: api/Members
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<AppUser>>> GetMembers()
+        public async Task<ActionResult<IReadOnlyList<Member>>> GetMembers()
         {
-            var members = await context.Users.ToListAsync();
-            return members;
+            return Ok(await memberRepository.GetMembersAsync());
         }
 
-        [Authorize]
         [HttpGet("{id}")]// localhost:5001/api/members/bob-id
-        public async Task<ActionResult<AppUser>> GetMember(string id)
+        public async Task<ActionResult<Member>> GetMember(string id)
         {
-            var member = await context.Users.FindAsync(id);
+            var member = await memberRepository.GetMemberByIdAsync(id);
             if (member == null) return NotFound();
             return member;
         }
-
-        // POST: api/Members
-        [HttpPost]
-        public IActionResult CreateMember([FromBody] string member)
+        [HttpGet("{id}/photos")]
+        public async Task<ActionResult<IReadOnlyList<Photo>>> GetMemberPhotos(string id)
         {
-            // Logic to create a new member would go here
-            return CreatedAtAction(nameof(GetMember), new { id = 1 }, member);
-        }
-
-        // PUT: api/Members/5
-        [HttpPut("{id}")]
-        public IActionResult UpdateMember(int id, [FromBody] string member)
-        {
-            // Logic to update an existing member would go here
-            return NoContent();
-        }
-
-        // DELETE: api/Members/5
-        [HttpDelete("{id}")]
-        public IActionResult DeleteMember(int id)
-        {
-            // Logic to delete a member would go here
-            return NoContent();
+            return Ok(await memberRepository.GetPhotosForMemberAsync(id));
         }
     }
 }
