@@ -1,0 +1,22 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "build",
+			"path": "API/client",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "npm: build - API/client",
+			"detail": "ng build"
+		},
+		{
+			"type": "npm",
+			"script": "ng",
+			"path": "API/client",
+			"problemMatcher": [],
+			"label": "npm: ng - API/client",
+			"detail": "ng"
+		}
+	]
+}
