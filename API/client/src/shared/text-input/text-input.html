@@ -3,6 +3,7 @@
                 <input
                  class="input w-full"
                  [type]="type()"
+                 [max]="maxDate()"
                  [class.input-error]="control.invalid && control.touched"
                  [class.input-success]="control.valid && control.touched"
                   name="displayName" 
@@ -20,7 +21,7 @@
                  @if(control.hasError('minlength') && control.touched)
                  {
                     <div class="validation-hint text-error text-xs">
-                        {{label}} must be at least
+                        {{label()}} must be at least
                          {{control.errors?.['minlength'].requiredLength}} characters 
                     </div>
                  }
@@ -28,7 +29,7 @@
                  @if(control.hasError('maxlength') && control.touched)
                  {
                     <div class="validation-hint text-error text-xs">
-                        {{label}} must be at most
+                        {{label()}} must be at most
                          {{control.errors?.['maxlength'].requiredLength}} characters 
                     </div>
                  }
