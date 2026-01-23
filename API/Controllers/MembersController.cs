@@ -2,6 +2,7 @@ using System.Security.Claims;
 using API.DTOs;
 using API.Entities;
 using API.Extentions;
+using API.Helpers;
 using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +14,10 @@ namespace API.Controllers
     {
         // GET: api/Members
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Member>>> GetMembers()
+        public async Task<ActionResult<IReadOnlyList<Member>>> GetMembers(
+            [FromQuery] PagingParams pagingParams)
         {
-            return Ok(await memberRepository.GetMembersAsync());
+            return Ok(await memberRepository.GetMembersAsync(pagingParams));
         }
 
         [HttpGet("{id}")]// localhost:5001/api/members/bob-id
