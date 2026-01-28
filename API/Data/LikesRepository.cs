@@ -1,5 +1,6 @@
 using System;
 using API.Entities;
+using API.Helpers;
 using API.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,46 +21,52 @@ public class LikesRepository(AppDbContext context) : ILikesRepository
     public async Task<IReadOnlyList<string>> GetCurrentMemeberLikeIds(string memberId)
     {
         return await context.Likes
-            .Where(x=>x.SourceMemberId==memberId)
-            .Select(x=>x.TargetMemberId)
+            .Where(x => x.SourceMemberId == memberId)
+            .Select(x => x.TargetMemberId)
             .ToListAsync();
     }
 
     public async Task<MemberLike?> GetMemberLike(string sourceMemberId, string targetMemberId)
     {
-        return await context.Likes.FindAsync(sourceMemberId,targetMemberId);
+        return await context.Likes.FindAsync(sourceMemberId, targetMemberId);
     }
 
-    public async Task<IReadOnlyList<Member>> GetMemberLikes(string predicate, string memberId)
+    public async Task<PaginatedResult<Member>> GetMemberLikes(LikesParams likesParams)
     {
-        var query=context.Likes.AsQueryable();
+        var query = context.Likes.AsQueryable();
+        IQueryable<Member> result;
 
-        switch (predicate)
+        switch (likesParams.Predicate)
         {
             case "liked":
-                return await query
-                    .Where(x=>x.SourceMemberId==memberId)
-                    .Select(x=>x.TargetMember)
-                    .ToListAsync();
-
+                result= query
+                    .Where(like => like.SourceMemberId == likesParams.MemberId)
+                    .Select(like => like.TargetMember);                    
+                break;
             case "likedBy":
-                return await query
-                    .Where(x=>x.TargetMemberId==memberId)
-                    .Select(x=>x.SourceMember)
-                    .ToListAsync();        
+                result= query
+                    .Where(like => like.TargetMemberId == likesParams.MemberId)
+                    .Select(like => like.SourceMember);
+                    break;                    
 
             default: //mutual
-                var likeIds=await GetCurrentMemeberLikeIds(memberId);   
-                return await query
-                    .Where(x=>x.TargetMemberId==memberId 
-                    && likeIds.Contains(x.SourceMemberId))       
-                    .Select(x=>x.SourceMember)
-                    .ToListAsync();                    
+                var likeIds = await GetCurrentMemeberLikeIds(likesParams.MemberId);
+
+                result = query
+                    .Where(x => x.TargetMemberId == likesParams.MemberId
+                    && likeIds.Contains(x.SourceMemberId))
+                    .Select(x => x.SourceMember);
+                break;
         }
+
+        return await PaginationHelper.CreateAsync(result,
+        likesParams.PageNumber, likesParams.PageSize);
+
     }
+    
 
     public async Task<bool> SaveAllChanges()
     {
-        return await context.SaveChangesAsync()>0;
+        return await context.SaveChangesAsync() > 0;
     }
 }
