@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, inject, OnInit, signal, ViewChild, viewChild } from '@angular/core';
+import { Component, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, viewChild } from '@angular/core';
 import { MessageService } from '../../../core/services/message-service';
 import { MemberService } from '../../../core/services/member-service';
 import { Message } from '../../../types/message';
@@ -14,7 +14,7 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './member-messages.html',
   styleUrl: './member-messages.css',
 })
-export class MemberMessages implements OnInit {
+export class MemberMessages implements OnInit, OnDestroy {
   @ViewChild('messageEndRef') messageEndRef!: ElementRef
 
   protected messageService = inject(MessageService);
@@ -34,6 +34,7 @@ export class MemberMessages implements OnInit {
     })
 
   }
+  
 
   ngOnInit(): void {
     this.route.parent?.paramMap.subscribe({
@@ -64,5 +65,9 @@ export class MemberMessages implements OnInit {
       }
     })
 
+  }
+
+  ngOnDestroy(): void {
+    this.messageService.stopHubConnection();
   }
 }
