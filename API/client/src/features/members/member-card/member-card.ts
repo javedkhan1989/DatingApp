@@ -21,14 +21,6 @@ export class MemberCard {
 
   toogleLike(event: Event){
     event.stopPropagation();
-    this.likeService.toogleLike(this.member().id).subscribe({
-      next:()=>{
-        if(this.hasLiked()){
-          this.likeService.likeIds.update(ids=>ids.filter(x=>x!==this.member().id))
-        }else{
-          this.likeService.likeIds.update(ids=>[...ids,this.member().id])
-        }
-      }
-    })
+    this.likeService.toogleLike(this.member().id)
   }
 }
